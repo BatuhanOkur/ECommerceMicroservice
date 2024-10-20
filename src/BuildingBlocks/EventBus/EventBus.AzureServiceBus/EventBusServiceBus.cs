@@ -60,6 +60,8 @@ namespace EventBus.AzureServiceBus
         public override void Subscribe<T, TH>()
         {
             var eventName = typeof(T).Name;
+            eventName = ProcessEventName(eventName);
+
             if(!SubsManager.HasSubscriptionsForEvent(eventName))
             {
                 var subscriptionClient = CreateSubscriptonClienIfNotExists(eventName);
