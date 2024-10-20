@@ -16,25 +16,25 @@ namespace EventBus.Base.Events
         public readonly IServiceProvider ServiceProvider;
         public readonly IEventBusSubscriptionManager SubsManager;
 
-        private EventBusConfig eventBusConfig;
+        public EventBusConfig EventBusConfig { get; set; }
 
         public BaseEventBus(EventBusConfig eventBusConfig, IServiceProvider serviceProvider)
         {
-            this.eventBusConfig = eventBusConfig;
+            this.EventBusConfig = eventBusConfig;
             this.ServiceProvider = serviceProvider;
             SubsManager = new InMemoryEventBusSubscriptionManager(ProcessEventName);
         }
 
         public virtual string ProcessEventName(string eventName)
         {
-            if(eventBusConfig.DeleteEventPrefix)
+            if(EventBusConfig.DeleteEventPrefix)
             {
-                eventName = eventName.TrimStart(eventBusConfig.EventNamePrefix.ToArray());
+                eventName = eventName.TrimStart(EventBusConfig.EventNamePrefix.ToArray());
             }
 
-            if (eventBusConfig.DeleteEventSuffix)
+            if (EventBusConfig.DeleteEventSuffix)
             {
-                eventName = eventName.TrimEnd(eventBusConfig.EventNameSuffix.ToArray());
+                eventName = eventName.TrimEnd(EventBusConfig.EventNameSuffix.ToArray());
             }
 
             return eventName;
@@ -42,12 +42,13 @@ namespace EventBus.Base.Events
 
         public virtual string GetSubName(string eventName)
         {
-            return $"{eventBusConfig.SubscriberClientAppName}.{ProcessEventName(eventName)}";
+            return $"{EventBusConfig.SubscriberClientAppName}.{ProcessEventName(eventName)}";
         }
 
         public virtual void Dispose()
         {
-            eventBusConfig = null;
+            EventBusConfig = null;
+            SubsManager.Clear();
         }
 
         public async Task<bool> ProcessEvent(string eventName, string message)
